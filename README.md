@@ -1,2 +1,2 @@
-# be-golang-testing
-this repo for implemententatio unit test
+# be-golang-chapter-36
+this repo for chapter 36
