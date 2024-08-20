@@ -1,60 +1,71 @@
+// main_test.go
 package main
 
 import (
+	"bytes"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
-// TestAdd menggunakan t.Error untuk menggagalkan tes
-func TestAdd(t *testing.T) {
-	result := Add(2, 3)
-	expected := 5
-	if result != expected {
-		t.Error("Expected 5, but got", result)
+func TestPostHandler(t *testing.T) {
+	// JSON body untuk request
+	requestBody := Response{Message: "Hello, World!"}
+	body, err := json.Marshal(requestBody)
+	if err != nil {
+		t.Fatalf("Failed to marshal request body: %v", err)
+	}
+
+	// Buat request HTTP palsu dengan basic auth
+	req := httptest.NewRequest("POST", "http://example.com/post", bytes.NewReader(body))
+	req.SetBasicAuth("admin", "password")
+
+	// Buat recorder untuk menangkap response
+	w := httptest.NewRecorder()
+
+	// Panggil handler dengan request dan recorder
+	handler := BasicAuthMiddleware(http.HandlerFunc(PostHandler))
+	handler.ServeHTTP(w, req)
+
+	// Periksa status code response
+	res := w.Result()
+	if res.StatusCode != http.StatusOK {
+		t.Errorf("expected status code %d, got %d", http.StatusOK, res.StatusCode)
+	}
+
+	// Periksa body response
+	var responseBody Response
+	if err := json.NewDecoder(w.Body).Decode(&responseBody); err != nil {
+		t.Fatalf("Failed to decode response body: %v", err)
+	}
+
+	if responseBody.Message != requestBody.Message {
+		t.Errorf("expected body message %q, got %q", requestBody.Message, responseBody.Message)
 	}
 }
 
-// TestAddUsingErrorf menggunakan t.Errorf untuk menggagalkan tes dengan pesan berformat
-func TestAddUsingErrorf(t *testing.T) {
-	result := Add(2, 3)
-	expected := 5
-	if result != expected {
-		t.Errorf("Add(2, 3) = %d; want %d", result, expected)
+func TestPostHandlerUnauthorized(t *testing.T) {
+	// JSON body untuk request
+	requestBody := Response{Message: "Hello, World!"}
+	body, err := json.Marshal(requestBody)
+	if err != nil {
+		t.Fatalf("Failed to marshal request body: %v", err)
 	}
-}
 
-// TestAddUsingFail menggunakan t.Fail untuk menggagalkan tes
-func TestAddUsingFail(t *testing.T) {
-	result := Add(2, 3)
-	expected := 5
-	if result != expected {
-		t.Log("Expected 5, but got", result)
-		t.Fail()
-	}
-}
+	// Buat request HTTP palsu tanpa basic auth
+	req := httptest.NewRequest("POST", "http://example.com/post", bytes.NewReader(body))
 
-// TestAddUsingFailNow menggunakan t.FailNow untuk menggagalkan tes dan menghentikan eksekusi
-func TestAddUsingFailNow(t *testing.T) {
-	result := Add(2, 3)
-	expected := 5
-	if result != expected {
-		t.FailNow()
-	}
-}
+	// Buat recorder untuk menangkap response
+	w := httptest.NewRecorder()
 
-// TestAddUsingFatal menggunakan t.Fatal untuk menggagalkan tes dengan pesan
-func TestAddUsingFatal(t *testing.T) {
-	result := Add(2, 3)
-	expected := 5
-	if result != expected {
-		t.Fatal("Expected 5, but got", result)
-	}
-}
+	// Panggil handler dengan request dan recorder
+	handler := BasicAuthMiddleware(http.HandlerFunc(PostHandler))
+	handler.ServeHTTP(w, req)
 
-// TestAddUsingFatalf menggunakan t.Fatalf untuk menggagalkan tes dengan pesan berformat
-func TestAddUsingFatalf(t *testing.T) {
-	result := Add(2, 3)
-	expected := 5
-	if result != expected {
-		t.Fatalf("Add(2, 3) = %d; want %d", result, expected)
+	// Periksa status code response
+	res := w.Result()
+	if res.StatusCode != http.StatusUnauthorized {
+		t.Errorf("expected status code %d, got %d", http.StatusUnauthorized, res.StatusCode)
 	}
 }
