@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"golang-unit-test/model"
+	"be-golang-chapter-26/implementation-unit-test/model"
 
 	"github.com/stretchr/testify/mock"
 )

@@ -1,4 +1,4 @@
-module golang-unit-test
+module be-golang-chapter-26
 
 go 1.22.4
 

@@ -1,8 +1,8 @@
 package service
 
 import (
-	"golang-unit-test/model"
-	"golang-unit-test/repository"
+	"be-golang-chapter-26/implementation-unit-test/model"
+	"be-golang-chapter-26/implementation-unit-test/repository"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

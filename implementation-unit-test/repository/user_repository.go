@@ -1,9 +1,9 @@
 package repository
 
 import (
+	"be-golang-chapter-26/implementation-unit-test/model"
 	"database/sql"
 	"fmt"
-	"golang-unit-test/model"
 )
 
 // UserRepository defines the methods for interacting with the user repository
